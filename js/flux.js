@@ -3,8 +3,10 @@ var fluxes = [];
 var boxW = 100;
 var boxH = 100;
 var lock = false; 
-var butAdd, butMove;
+var butAdd, butMove, butPlay;
 var mode = 0; //0 = 'ADD' mode, 1 = 'MOVE' mode
+var play = false;
+var slow = 100;
 
 
 function setup() {
@@ -18,6 +20,11 @@ function setup() {
   butMove.position(55,5);
   butMove.mousePressed(mode1);
   butMove.style('background-color', '#FFF');
+  
+  butPlay = createButton('>/||');
+  butPlay.position(150,5);
+  butPlay.mousePressed(playPause);
+  
 }
 
 function draw() {
@@ -30,6 +37,9 @@ function draw() {
 	}
 	if(mode == 1){
 		moveBox(mouseX,mouseY);
+	}
+	if(play){
+		playFlux();
 	}
 	recalcBoxes();
 }
@@ -74,7 +84,7 @@ function Box(bX, bY, bW, bH, name, mag, id){
 	
 	this.move = function(x,y){
 		if(this.over){
-			this.fillC = 255;
+			this.fillC = 230;
 		} else {
 			this.fillC = 200;
 		}	
@@ -155,7 +165,7 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 			translate(lx2,ly2);
 			rotate(-tRot + PI);
 			fill(0);
-			triangle(0,-10,-5,5,5,5);
+			triangle(0,0,-5,15,5,15);
 		pop();	
 	};
 	
@@ -164,6 +174,19 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 		this.inMag.value(this.magnitude);
 	}
 }	
+
+function playFlux(){
+	for(var i = 0; i < fluxes.length; i++){
+		var bout = select("#mag_" + fluxes[i].box1);
+		var bin = select("#mag_" + fluxes[i].box2);
+		var boutNew = parseFloat(bout.value());
+		boutNew = boutNew  - parseFloat(fluxes[i].magnitude)/slow;
+		var binNew = parseFloat(bin.value());
+		binNew = binNew + parseFloat(fluxes[i].magnitude)/slow;
+		bout.value(Math.round(boutNew*100)/100);
+		bin.value(Math.round(binNew*100)/100); 
+	}
+}
 
 function moveBox(x,y){
 	for(var i = 0; i < boxes.length; i++){
@@ -202,6 +225,9 @@ function mouseDragged(){
 			}
 		}
 	}
+	for(var i = 0; i < fluxes.length; i++){
+		fluxes[i].update();
+	}
 	recalcBoxes();
 }
 
@@ -221,6 +247,7 @@ window.ondblclick=function(){
 	}	
 };
 
+//inputs could become part of box class, see flux class
 function makeInputs(x,y,id){
 	input = createInput();
 	input.position(x-25,y);
@@ -320,4 +347,12 @@ function mode1(){
 	mode = 1;
 	butMove.style('background-color', '#C3E4F6');
 	butAdd.style('background-color', '#FFF');
-}		
+}
+
+function playPause(){
+	if(play){
+		play = false;
+	} else {
+		play = true;
+	}
+}			
