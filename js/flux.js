@@ -1,4 +1,5 @@
 var boxes = []; 
+var fluxes = [];
 var boxW = 100;
 var boxH = 100;
 var lock = false; 
@@ -56,7 +57,9 @@ function Box(bX, bY, bW, bH, name, mag, id){
 	this.display = function(){
 		fill(this.fillC);
 		rect(this.bX, this.bY, this.bW, this.bH);
-		line(this.lineX1,this.lineY1,this.lineX2,this.lineY2);
+		if(mouseIsPressed && this.lineLocked){
+			line(this.lineX1,this.lineY1,this.lineX2,this.lineY2);
+		}	
 	};
 	
 	this.checkOver = function(x,y){
@@ -86,24 +89,67 @@ function Box(bX, bY, bW, bH, name, mag, id){
 	}
 	
 	this.addLine = function(x,y){
-		if(this.over && !this.lineMode && mouseIsPressed){
+		if(this.over && !this.lineMode && mouseIsPressed && !lock){
 			this.lineX1 = x;
 			this.lineY1 = y; 
 			this.lineLocked = true;
 			this.lineMode = true;
+			lock = true; 
 		} 
 		
 		if(this.lineLocked && this.lineMode && mouseIsPressed){
 			this.lineX2 = x; 
 			this.lineY2 = y;
 		}
+		
 		if(!mouseIsPressed){
 			this.lineLocked = false;
 			this.lineMode = false;
+		}		
+	}
+	
+	this.saveLine = function(){
+		if(this.lineX1 > this.bX && this.lineX1 < this.bX+this.bW && this.lineY1 > this.bY && this.lineY1 < this.bY + this.bH){
+			for(var i = 0; i < boxes.length; i++){
+				if(i != id){
+					if(this.lineX2 > boxes[i].bX && this.lineX2 < boxes[i].bX+boxes[i].bW && this.lineY2 > boxes[i].bY && this.lineY2 < boxes[i].bY + boxes[i].bH){
+						//fluxes calculated in relation to x,y of box
+						var lx1 = this.lineX1 - this.bX;
+						var lx2 = this.lineX2 - boxes[i].bX;
+						var ly1 = this.lineY1 - this.bY;
+						var ly2 = this.lineY2 - boxes[i].bY;
+						append(fluxes,new Flux(lx2,ly1,lx2,ly2,id,i,0));
+					}
+				}
+			}
 		}
-		
 	}
 }
+
+function Flux(x1,y1,x2,y2,box1,box2,magnitude){
+	this.x1 = x1;
+	this.y1 = y1;
+	this.x2 = x2;
+	this.y2 = y2;
+	this.box1 = box1;
+	this.box2 = box2;
+	magnitude = 0;
+	
+	this.display = function(){
+		var lx1 = boxes[box1].bX + this.x1;
+		var lx2 = boxes[box2].bX + this.x2;
+		var ly1 = boxes[box1].bY + this.y1;
+		var ly2 = boxes[box2].bY + this.y2;
+		line(lx1,ly1,lx2,ly2);
+		var tRot = atan2(lx2-lx1,ly2-ly1);
+		push();
+			translate(lx2,ly2);
+			rotate(-tRot + PI);
+			fill(0);
+			triangle(0,-10,-5,5,5,5);
+		pop();	
+	};
+}	
 
 function moveBox(x,y){
 	for(var i = 0; i < boxes.length; i++){
@@ -118,14 +164,19 @@ function checkOver(x,y){
 }
 
 
-function mouseReleased(){
-	recalcBoxes();	
-	/*for(var i = 0; i < boxes.length; i++){
-		console.log(boxes[i].mag);
-	}*/
+function mouseReleased(){	
+	background(255);
+	if(mode == 0){
+		for(var i = 0; i < boxes.length; i++){
+			boxes[i].saveLine();
+		}
+	}	
+	//recalcBoxes();
+	lock = false;
 }
 
 function mouseDragged(){
+	background(255);
 	if(mode == 1){
 		for(var i = 0; i < boxes.length; i++){
 			if(boxes[i].locked){
@@ -144,6 +195,9 @@ function recalcBoxes(){
 	background(255);
 	for(var i = 0; i < boxes.length; i++){
 		boxes[i].display();
+	}
+	for(var i = 0; i < fluxes.length; i++){
+		fluxes[i].display();
 	}
 }
 
