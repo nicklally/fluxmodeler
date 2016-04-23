@@ -56,6 +56,8 @@ function Box(bX, bY, bW, bH, name, mag, id){
 	
 	this.display = function(){
 		fill(this.fillC);
+		strokeWeight(3);
+		stroke(100);
 		rect(this.bX, this.bY, this.bW, this.bH);
 		if(mouseIsPressed && this.lineLocked){
 			line(this.lineX1,this.lineY1,this.lineX2,this.lineY2);
@@ -118,7 +120,8 @@ function Box(bX, bY, bW, bH, name, mag, id){
 						var lx2 = this.lineX2 - boxes[i].bX;
 						var ly1 = this.lineY1 - this.bY;
 						var ly2 = this.lineY2 - boxes[i].bY;
-						append(fluxes,new Flux(lx2,ly1,lx2,ly2,id,i,0));
+						append(fluxes,new Flux(lx1,ly1,lx2,ly2,id,i,0,fluxes.length));
+						this.lineX1 = -1000; //to avoid duplicate lines
 					}
 				}
 			}
@@ -126,20 +129,26 @@ function Box(bX, bY, bW, bH, name, mag, id){
 	}
 }
 
-function Flux(x1,y1,x2,y2,box1,box2,magnitude){
+function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 	this.x1 = x1;
 	this.y1 = y1;
 	this.x2 = x2;
 	this.y2 = y2;
 	this.box1 = box1;
 	this.box2 = box2;
-	magnitude = 0;
+	this.magnitude = 0;
+	this.inMag = createInput();
+	this.inMag.position((this.x1 + boxes[box1].bX+this.x2 + boxes[box2].bX)/2,(this.y1+boxes[box1].bY + this.y2+boxes[box2].bY)/2);
+	this.inMag.value(magnitude);
+	this.inMag.id("flux_" + id);
+	this.inMag.attribute("onkeydown", "keypressFlux(event, id)");
 	
 	this.display = function(){
 		var lx1 = boxes[box1].bX + this.x1;
 		var lx2 = boxes[box2].bX + this.x2;
 		var ly1 = boxes[box1].bY + this.y1;
 		var ly2 = boxes[box2].bY + this.y2;
+		strokeWeight(this.magnitude/10+1);
 		line(lx1,ly1,lx2,ly2);
 		var tRot = atan2(lx2-lx1,ly2-ly1);
 		push();
@@ -149,6 +158,11 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude){
 			triangle(0,-10,-5,5,5,5);
 		pop();	
 	};
+	
+	this.update = function(){
+		this.inMag.position((this.x1 + boxes[box1].bX+this.x2 + boxes[box2].bX)/2,(this.y1+boxes[box1].bY + this.y2+boxes[box2].bY)/2);
+		this.inMag.value(this.magnitude);
+	}
 }	
 
 function moveBox(x,y){
@@ -259,31 +273,40 @@ function makeBox(x,y){
 }
 
 //keypress for mag input boxes
-	function keypress(event, id){
-		//var key = event.keyCode;
-		//if (key == 13){ //trigger for enter key
-			//console.log(id);
-			var inputFocus = document.getElementById(id);
-			var inVal = inputFocus.value; 
-			var idNum = id.split("_");
-			//console.log(idNum[1]);
-			boxes[idNum[1]].mag = inVal;
-			console.log(boxes[idNum[1]].mag); 
-		//	}
+function keypress(event, id){
+	//var key = event.keyCode;
+	//if (key == 13){ //trigger for enter key
+	//console.log(id);
+	var inputFocus = document.getElementById(id);
+	var inVal = inputFocus.value; 
+	var idNum = id.split("_");
+	//console.log(idNum[1]);
+	boxes[idNum[1]].mag = inVal;
+	console.log(boxes[idNum[1]].mag); 
+	//	}
 }
 
 //keypress for mag input boxes
-	function keypress2(event, id){
-		var key = event.keyCode;
-		//if (key == 13){ //trigger for enter key
-			//console.log(id);
-			var inputFocus = document.getElementById(id);
-			var inVal = inputFocus.value; 
-			var idNum = id.split("_");
-			//console.log(idNum[1]);
-			boxes[idNum[1]].name = inVal;
-			console.log(boxes[idNum[1]].name); 
-		//	}
+function keypress2(event, id){
+	var key = event.keyCode;
+	//if (key == 13){ //trigger for enter key
+	//console.log(id);
+	var inputFocus = document.getElementById(id);
+	var inVal = inputFocus.value; 
+	var idNum = id.split("_");
+	//console.log(idNum[1]);
+	boxes[idNum[1]].name = inVal;
+	console.log(boxes[idNum[1]].name); 
+	//	}
+}
+
+function keypressFlux(event, id){
+	var key = event.keyCode;
+	var inputFocus = document.getElementById(id);
+	var inVal = inputFocus.value; 
+	var idNum = id.split("_");
+	fluxes[idNum[1]].magnitude = inVal;
+	fluxes[idNum[1]].update();
 }
 
 //'ADD' mode
