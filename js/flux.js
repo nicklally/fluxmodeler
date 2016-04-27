@@ -3,14 +3,17 @@ var fluxes = [];
 var boxW = 100;
 var boxH = 100;
 var lock = false; 
-var butAdd, butMove, butPlay;
+var butAdd, butMove, butPlay, butStop, speedSlider, butReset;
+var timeDiv;
 var mode = 0; //0 = 'ADD' mode, 1 = 'MOVE' mode
 var play = false;
 var slow = 100;
+var time = 0; 
 
 
 function setup() {
-  createCanvas(900, 600);
+  var canv = createCanvas(900, 600);
+  canv.parent("p5");
   butAdd = createButton('ADD');
   butAdd.position(5,5);
   butAdd.mousePressed(mode0);
@@ -21,14 +24,31 @@ function setup() {
   butMove.mousePressed(mode1);
   butMove.style('background-color', '#FFF');
   
-  butPlay = createButton('>/||');
+  butPlay = createButton('►/||');
   butPlay.position(150,5);
   butPlay.mousePressed(playPause);
   
+  butStop = createButton('▉');
+  butStop.position(120,5);
+  butStop.mousePressed(stop);
+  
+  timeDiv = createDiv('Time Elapsed: 0').id('timeElapsed');
+  timeDiv.style('margin-top','5px');
+  timeDiv.position(200,5);  
+  
+  speedSlider = createSlider(1, 100, 50);
+  speedSlider.position(320,5);
+  speedSlider.style('width', '120px');
+  
+  butReset = createButton('RESET');
+  butReset.position(550,5);
+  butReset.mousePressed(reset);
+  butReset.style('background-color', '#FFF');
 }
 
 function draw() {
 	background(255);
+	slow = 101-speedSlider.value();
 	checkOver(mouseX,mouseY);
 	if(mode == 0){
 		for(var i = 0; i < boxes.length; i++){
@@ -151,7 +171,9 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 	this.inMag.position((this.x1 + boxes[box1].bX+this.x2 + boxes[box2].bX)/2,(this.y1+boxes[box1].bY + this.y2+boxes[box2].bY)/2);
 	this.inMag.value(magnitude);
 	this.inMag.id("flux_" + id);
+	this.inMag.class("mflux");
 	this.inMag.attribute("onkeydown", "keypressFlux(event, id)");
+	this.inMag.style('width', '30px')
 	
 	this.display = function(){
 		var lx1 = boxes[box1].bX + this.x1;
@@ -176,16 +198,42 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 }	
 
 function playFlux(){
+	time+= 1/slow;
 	for(var i = 0; i < fluxes.length; i++){
 		var bout = select("#mag_" + fluxes[i].box1);
 		var bin = select("#mag_" + fluxes[i].box2);
 		var boutNew = parseFloat(bout.value());
-		boutNew = boutNew  - parseFloat(fluxes[i].magnitude)/slow;
+		var boutPrev = boutNew;
 		var binNew = parseFloat(bin.value());
-		binNew = binNew + parseFloat(fluxes[i].magnitude)/slow;
-		bout.value(Math.round(boutNew*100)/100);
-		bin.value(Math.round(binNew*100)/100); 
+		var binPrev = binNew;
+		var magOut = parseFloat(fluxes[i].magnitude)/slow
+		var magIn = parseFloat(fluxes[i].magnitude)/slow
+		
+		//make sure to empty box when near zero
+		if(boutNew < magOut){
+			magIn = boutNew;
+		}
+			
+		boutNew = boutNew  - magOut;
+		binNew = binNew + magIn;
+		
+		if(boutPrev >= 0 && binPrev >= 0){
+			bout.value(Math.round(boutNew*100)/100);			
+			bin.value(Math.round(binNew*100)/100); 
+		}	
+		if(boutNew < 0){
+			boutNew = 0;
+			bout.value(0);	
+		}
+		if(binNew < 0){
+			binNew = 0;
+			bin.value(0);
+		}		
+		
 	}
+	var div = document.getElementById('timeElapsed');
+	div.innerHTML = 'Time Elapsed: ' + Math.round(time*100)/100; 
+	
 }
 
 function moveBox(x,y){
@@ -242,7 +290,7 @@ function recalcBoxes(){
 }
 
 window.ondblclick=function(){
-	if(mode == 0){
+	if(mode == 0 && mouseY > 20){
 		makeBox(mouseX,mouseY);
 	}	
 };
@@ -299,7 +347,6 @@ function makeBox(x,y){
 	
 }
 
-//keypress for mag input boxes
 function keypress(event, id){
 	//var key = event.keyCode;
 	//if (key == 13){ //trigger for enter key
@@ -309,11 +356,10 @@ function keypress(event, id){
 	var idNum = id.split("_");
 	//console.log(idNum[1]);
 	boxes[idNum[1]].mag = inVal;
-	console.log(boxes[idNum[1]].mag); 
+	//console.log(boxes[idNum[1]].mag); 
 	//	}
 }
 
-//keypress for mag input boxes
 function keypress2(event, id){
 	var key = event.keyCode;
 	//if (key == 13){ //trigger for enter key
@@ -323,7 +369,7 @@ function keypress2(event, id){
 	var idNum = id.split("_");
 	//console.log(idNum[1]);
 	boxes[idNum[1]].name = inVal;
-	console.log(boxes[idNum[1]].name); 
+	//console.log(boxes[idNum[1]].name); 
 	//	}
 }
 
@@ -355,4 +401,30 @@ function playPause(){
 	} else {
 		play = true;
 	}
+}	
+
+function stop(){
+		play = false;
+		time = 0;
+		var div = document.getElementById('timeElapsed');
+		div.innerHTML = 'Time Elapsed: ' + Math.round(time*100)/100; 
 }			
+
+function reset(){
+	fluxes = [];
+	boxes = [];
+	var a = selectAll('.magnitude');
+	var b = selectAll('.label');
+	var c = selectAll('.mflux');
+	console.log(a);
+	for(var i = a.length-1; i >= 0; i--){
+			a[i].remove();	
+			console.log('hit');
+	}
+	for(var i = b.length-1; i >= 0; i--){
+			b[i].remove();	
+	}
+	for(var i = c.length-1; i >= 0; i--){
+			c[i].remove();	
+	}
+}		

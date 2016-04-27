@@ -7,9 +7,39 @@
   <script language="javascript" type="text/javascript" src="js/flux.js"></script> 
   <style>
 	  input{width:75px;opacity:.8;}
-	  input.label{background:none}
+	  input.label{background:none;}
+	  div{font-family: helvetica, arial, sans-serif; font-size:12px;}
+	  #p5{margin:0;}
+	  #desc{float:left;font-family:Georgia;font-size:16px;width:600px;}
+	  span.title{font-weight:bold;color:#0038F0;}
   </style>
 </head>
 <body>
+<div id="p5"></div>
+<div id="desc"><span class="title">fluxmodeler</span><br />
+The fluxmodeler is an interactive box model tool that allows users to build box models, 
+model fluxes, and explore their effects on reservoirs over time. <br /><br />
+<span class="title">instructions</span><br />
+(1) Add boxes by double clicking on the screen. <br />
+&nbsp;&nbsp;&nbsp;&nbsp;(a) Label them by changing the text in the top input box.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;(b) Change their budget by entering a number in the bottom input box and clicking "enter".<br />
+(2) Add fluxes by clicking and dragging a line from one box to another.<br /> 
+&nbsp;&nbsp;&nbsp;&nbsp;(a) Enter a number in the input box and click "enter" to indicate the magnitude of flux.<br />
+(3) Click on the "MOVE" button to drag boxes around.<br />
+(4) Click "►/||" to play or pause the model.<br />
+(5) Click "▉" to stop the model and reset the timer.<br />
+(6) Move the slider to slow down or speed up the model.</br /><br />
+<span class="title">examples</span><br />
+Systems that could be modeled using this framework (from 
+Cornell, S., I. C. Prentice, J. House, and C. Downy eds. 2012. <i>Understanding the earth system: global change science for application</i>.
+Cambridge: Cambridge University Press.):
+<img src="images/box1.png" /><br />
+<img src="images/box2.png" /><br /><br />
+<span class="title">code</span><br />
+This program is written in javascript with help from <a href="http://p5js.org" target="_blank">p5.js</a>.<br /> 
+You can view and fork the source code on the <a href="https://github.com/nicklally/fluxmodeler" target="_blank">github repo</a>.<br />
+Licensed under a <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">Creative Commons license</a>. 
+
+</div>
 </body>
 </html>  
