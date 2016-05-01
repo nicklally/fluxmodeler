@@ -3,12 +3,13 @@ var fluxes = [];
 var boxW = 100;
 var boxH = 100;
 var lock = false; 
-var butAdd, butMove, butPlay, butStop, speedSlider, butReset;
+var butAdd, butMove, butPlay, butStop, speedSlider, butReset, butEq;
 var timeDiv;
 var mode = 0; //0 = 'ADD' mode, 1 = 'MOVE' mode
 var play = false;
 var slow = 100;
 var time = 0; 
+var eqOn = false;
 
 
 function setup() {
@@ -40,8 +41,13 @@ function setup() {
   speedSlider.position(320,5);
   speedSlider.style('width', '120px');
   
+  butEq = createButton('ADVANCED EQUATION MODE');
+  butEq.position(550,5);
+  butEq.mousePressed(equation);
+  butEq.style('background-color','#FFF');
+  
   butReset = createButton('RESET');
-  butReset.position(550,5);
+  butReset.position(850,5);
   butReset.mousePressed(reset);
   butReset.style('background-color', '#FFF');
 }
@@ -173,7 +179,14 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 	this.inMag.id("flux_" + id);
 	this.inMag.class("mflux");
 	this.inMag.attribute("onkeydown", "keypressFlux(event, id)");
-	this.inMag.style('width', '30px')
+	this.inMag.style('width', '30px');
+	this.inEq = createInput();
+	this.inEq.position((this.x1 + boxes[box1].bX+this.x2 + boxes[box2].bX)/2,(this.y1+boxes[box1].bY + this.y2+boxes[box2].bY)/2 + 20);
+	this.inEq.class('equation');
+	this.inEq.attribute("onkeydown", "keypressEq(event, id)");
+	this.inEq.id("eq_" + id);
+	if(!eqOn){this.inEq.hide();}
+	this.eq = '';
 	
 	this.display = function(){
 		var lx1 = boxes[box1].bX + this.x1;
@@ -193,6 +206,7 @@ function Flux(x1,y1,x2,y2,box1,box2,magnitude,id){
 	
 	this.update = function(){
 		this.inMag.position((this.x1 + boxes[box1].bX+this.x2 + boxes[box2].bX)/2,(this.y1+boxes[box1].bY + this.y2+boxes[box2].bY)/2);
+		this.inEq.position((this.x1 + boxes[box1].bX+this.x2 + boxes[box2].bX)/2,(this.y1+boxes[box1].bY + this.y2+boxes[box2].bY)/2 + 20);
 		this.inMag.value(this.magnitude);
 	}
 }	
@@ -202,12 +216,31 @@ function playFlux(){
 	for(var i = 0; i < fluxes.length; i++){
 		var bout = select("#mag_" + fluxes[i].box1);
 		var bin = select("#mag_" + fluxes[i].box2);
+		var equate = fluxes[i].eq;
 		var boutNew = parseFloat(bout.value());
 		var boutPrev = boutNew;
 		var binNew = parseFloat(bin.value());
 		var binPrev = binNew;
-		var magOut = parseFloat(fluxes[i].magnitude)/slow
-		var magIn = parseFloat(fluxes[i].magnitude)/slow
+		var magOut = parseFloat(fluxes[i].magnitude);
+		var magIn = parseFloat(fluxes[i].magnitude);
+		
+		//evaluate expression
+		if(equate != '' && eqOn){
+			try {
+				var exp = Parser.parse(equate);
+				var eva = exp.evaluate({x:boutNew,y:binNew,z:magOut})
+			} catch(err){
+				alert('Bad equation!');
+				play = false;
+				break;
+			}	
+				
+			//console.log(eva);
+			magOut = eva;
+			magIn = eva;
+		}
+		magOut = magOut / slow;
+		magIn = magIn / slow;
 		
 		//make sure to empty box when near zero
 		if(boutNew < magOut){
@@ -258,6 +291,12 @@ function mouseReleased(){
 	}	
 	//recalcBoxes();
 	lock = false;
+	
+	//equation parser test
+	/*var entry = '2*x + 3*y';
+	var exp = Parser.parse(entry);
+	var xx = 5;
+	console.log(exp.evaluate({x:xx, y:2}));*/
 }
 
 function mouseDragged(){
@@ -349,37 +388,50 @@ function makeBox(x,y){
 
 function keypress(event, id){
 	//var key = event.keyCode;
-	//if (key == 13){ //trigger for enter key
-	//console.log(id);
-	var inputFocus = document.getElementById(id);
-	var inVal = inputFocus.value; 
-	var idNum = id.split("_");
-	//console.log(idNum[1]);
-	boxes[idNum[1]].mag = inVal;
-	//console.log(boxes[idNum[1]].mag); 
-	//	}
+	if (key == 13){ //trigger for enter key
+		//console.log(id);
+		var inputFocus = document.getElementById(id);
+		var inVal = inputFocus.value; 
+		var idNum = id.split("_");
+		//console.log(idNum[1]);
+		boxes[idNum[1]].mag = inVal;
+		//console.log(boxes[idNum[1]].mag); 
+	}
 }
 
 function keypress2(event, id){
 	var key = event.keyCode;
-	//if (key == 13){ //trigger for enter key
-	//console.log(id);
-	var inputFocus = document.getElementById(id);
-	var inVal = inputFocus.value; 
-	var idNum = id.split("_");
-	//console.log(idNum[1]);
-	boxes[idNum[1]].name = inVal;
-	//console.log(boxes[idNum[1]].name); 
-	//	}
+	if (key == 13){ //trigger for enter key
+		//console.log(id);
+		var inputFocus = document.getElementById(id);
+		var inVal = inputFocus.value; 
+		var idNum = id.split("_");
+		//console.log(idNum[1]);
+		boxes[idNum[1]].name = inVal;
+		console.log(boxes[idNum[1]].name); 
+	}
 }
 
 function keypressFlux(event, id){
 	var key = event.keyCode;
-	var inputFocus = document.getElementById(id);
-	var inVal = inputFocus.value; 
-	var idNum = id.split("_");
-	fluxes[idNum[1]].magnitude = inVal;
-	fluxes[idNum[1]].update();
+	if (key == 13){
+		var inputFocus = document.getElementById(id);
+		var inVal = inputFocus.value; 
+		var idNum = id.split("_");
+		fluxes[idNum[1]].magnitude = inVal;
+		fluxes[idNum[1]].update();
+	}
+}
+
+function keypressEq(event, id){
+	var key = event.keyCode;
+	if (key == 13){ //trigger for enter key
+		var inputFocus = document.getElementById(id);
+		var inVal = inputFocus.value; 
+		var idNum = id.split("_");
+		fluxes[idNum[1]].eq = inVal;
+		//console.log(boxes[idNum[1]].eq); 
+	}
 }
 
 //'ADD' mode
@@ -408,7 +460,25 @@ function stop(){
 		time = 0;
 		var div = document.getElementById('timeElapsed');
 		div.innerHTML = 'Time Elapsed: ' + Math.round(time*100)/100; 
-}			
+}		
+
+function equation(){
+	if(eqOn){
+		eqOn = false;
+		var a = selectAll('.equation');
+		for(var i = 0; i < a.length; i++){
+			a[i].hide();
+		}
+		butEq.style('background-color', '#FFF');	
+	} else {
+		eqOn = true;	
+		var a = selectAll('.equation');
+		for(var i = 0; i < a.length; i++){
+			a[i].show();
+		}
+		butEq.style('background-color', '#C3E4F6');
+	}		
+}	
 
 function reset(){
 	fluxes = [];
@@ -416,6 +486,7 @@ function reset(){
 	var a = selectAll('.magnitude');
 	var b = selectAll('.label');
 	var c = selectAll('.mflux');
+	var d = selectAll('.equation');
 	console.log(a);
 	for(var i = a.length-1; i >= 0; i--){
 			a[i].remove();	
@@ -426,5 +497,8 @@ function reset(){
 	}
 	for(var i = c.length-1; i >= 0; i--){
 			c[i].remove();	
+	}
+	for(var i = d.length-1; i >= 0; i--){
+			d[i].remove();	
 	}
 }		

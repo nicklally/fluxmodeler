@@ -5,6 +5,7 @@
   <script language="javascript" type="text/javascript" src="js/p5.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/p5.dom.js"></script> 
   <script language="javascript" type="text/javascript" src="js/flux.js"></script> 
+  <script language="javascript" type="text/javascript" src="js/parser.js"></script>
   <style>
 	  input{width:75px;opacity:.8;}
 	  input.label{background:none;}
@@ -29,6 +30,18 @@ model fluxes, and explore their effects on reservoirs over time. <br /><br />
 (4) Click "►/||" to play or pause the model.<br />
 (5) Click "▉" to stop the model and reset the timer.<br />
 (6) Move the slider to slow down or speed up the model.</br /><br />
+<span class="title">advanced equation mode</span><br />
+In advanced mode, the equation box that appears overrides the flux magnitude box. You can enter
+common mathematical notations, including ^ (exponents), * (multiplication), / (division), + (addition), 
+- (subtraction), and parenthesis. For more option, see <a href="https://github.com/silentmatt/js-expression-eval" target="_blank">
+the expression evaluator documentation</a>.<br /><br />
+More importantly, you can use the following three variables: <br />
+'x' = the value of the source box budget<br /> 
+'y' = the value of the destination box budget<br />
+'z' = the value of the flux magnitude box <br />
+For example:<br />
+<img src="images/exampleEq.png" /><br />
+This flux would begin at 77 (1000/10 + 2 - 50/2)<br /><br />
 <span class="title">examples</span><br />
 Systems that could be modeled using this framework (from 
 Cornell, S., I. C. Prentice, J. House, and C. Downy eds. 2012. <i>Understanding the earth system: global change science for application</i>.
@@ -36,7 +49,7 @@ Cambridge: Cambridge University Press.):
 <img src="images/box1.png" /><br />
 <img src="images/box2.png" /><br /><br />
 <span class="title">code</span><br />
-This program is written in javascript with help from <a href="http://p5js.org" target="_blank">p5.js</a>.<br /> 
+This program is written in javascript with help from <a href="http://p5js.org" target="_blank">p5.js</a> and <a href="https://github.com/silentmatt/js-expression-eval" target="_blank">JavaScript Expression Evaluator</a>.<br /> 
 You can view and fork the source code on the <a href="https://github.com/nicklally/fluxmodeler" target="_blank">github repo</a>.<br />
 Licensed under a <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">Creative Commons license</a>. 
 
