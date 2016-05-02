@@ -13,23 +13,27 @@
 	  #p5{margin:0;}
 	  #desc{float:left;font-family:Georgia;font-size:16px;width:600px;}
 	  span.title{font-weight:bold;color:#0038F0;}
+	  ol{margin:5px 0;}
   </style>
 </head>
 <body>
 <div id="p5"></div>
 <div id="desc"><span class="title">fluxmodeler</span><br />
-The fluxmodeler is an interactive box model tool that allows users to build box models, 
-model fluxes, and explore their effects on reservoirs over time. <br /><br />
-<span class="title">instructions</span><br />
-(1) Add boxes by double clicking on the screen. <br />
-&nbsp;&nbsp;&nbsp;&nbsp;(a) Label them by changing the text in the top input box.<br />
-&nbsp;&nbsp;&nbsp;&nbsp;(b) Change their budget by entering a number in the bottom input box and clicking "enter".<br />
-(2) Add fluxes by clicking and dragging a line from one box to another.<br /> 
-&nbsp;&nbsp;&nbsp;&nbsp;(a) Enter a number in the input box and click "enter" to indicate the magnitude of flux.<br />
-(3) Click on the "MOVE" button to drag boxes around.<br />
-(4) Click "►/||" to play or pause the model.<br />
-(5) Click "▉" to stop the model and reset the timer.<br />
-(6) Move the slider to slow down or speed up the model.</br /><br />
+The fluxmodeler is an interactive modeling tool that allows users to build budget models, 
+simulate fluxes, and explore their effects on reservoirs over time. <br /><br />
+<span class="title">instructions</span>
+<ol><li> Add boxes by double clicking on the screen. <br />
+<ul><li> Label them by changing the text in the top input box.<br />
+<li> Change their budgets by entering a number in the bottom input box and clicking "enter".<br />
+</ul>
+<li> Add fluxes by clicking and dragging a line from one box to another.<br /> 
+<ul><li> Enter a number in the input box and click "enter" to indicate the magnitude of flux. This is the 
+amount of flux moved between boxes in one unit of time.</ul>
+<li> Click on the "MOVE" button to drag boxes around.<br />
+<li> Click "►/||" to play or pause the model.<br />
+<li> Click "▉" to stop the model and reset the timer.<br />
+<li> Move the slider to slow down or speed up the model.</br /><br />
+</ol>
 <span class="title">advanced equation mode</span><br />
 In advanced mode, the equation box that appears overrides the flux magnitude box. You can enter
 common mathematical notations, including ^ (exponents), * (multiplication), / (division), + (addition), 
@@ -47,7 +51,10 @@ Systems that could be modeled using this framework (from
 Cornell, S., I. C. Prentice, J. House, and C. Downy eds. 2012. <i>Understanding the earth system: global change science for application</i>.
 Cambridge: Cambridge University Press.):
 <img src="images/box1.png" /><br />
+The above model is easy to implement and shows a slow increase of carbon in the atmosphere over time. <br />
 <img src="images/box2.png" /><br /><br />
+More complex models can be implemented using the advanced equation mode, which allows the introduction of 
+constants and fluxes that are mathematically dependent on reservoir magnitudes. <br /><br />
 <span class="title">code</span><br />
 This program is written in javascript with help from <a href="http://p5js.org" target="_blank">p5.js</a> and <a href="https://github.com/silentmatt/js-expression-eval" target="_blank">JavaScript Expression Evaluator</a>.<br /> 
 You can view and fork the source code on the <a href="https://github.com/nicklally/fluxmodeler" target="_blank">github repo</a>.<br />
