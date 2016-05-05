@@ -41,7 +41,7 @@ function setup() {
   speedSlider.position(320,5);
   speedSlider.style('width', '120px');
   
-  butEq = createButton('ADVANCED EQUATION MODE');
+  butEq = createButton('ADVANCED EXPRESSION MODE');
   butEq.position(550,5);
   butEq.mousePressed(equation);
   butEq.style('background-color','#FFF');
